@@ -1,35 +1,36 @@
 <?php
 include_once 'db.php';
-$id = $_GET['id'];
-$sql = "SELECT * FROM users WHERE id = :id";
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(':id', $id, PDO::PARAM_INT);
-$stmt->execute();
-$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$id = $_GET['id'] ?? null;
+$db = new Db();
+
+$row = $db->get_data_by_id('users', $id);
 
 $skills = !empty($row['skills']) ? explode(',', $row['skills']) : [];
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = [
+        'first_name' => $_POST['first_name'],
+        'last_name'  => $_POST['last_name'],
+        'address'    => $_POST['address'],
+        'country'    => $_POST['country'],
+        'gender'     => $_POST['gender'],
+        'skills'     => isset($_POST['skills']) ? implode(',', $_POST['skills']) : '',
+        'username'   => $_POST['username'],
+        'password'   => !empty($_POST['password']) ? password_hash($_POST['password'], PASSWORD_DEFAULT) : $row['password'],
+        'department' => $_POST['department'],
+        'sh68sa'     => $_POST['sh68sa']
+    ];
 
-if($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $first_name =$_POST['first_name'];
-    $last_name =$_POST['last_name'];
-    $address = $_POST['address'];
-    $country = $_POST['country'];
-    $gender = $_POST['gender'];
-    $skills = isset($_POST['skills']) ? implode(',', $_POST['skills']) :
-    $username = $_POST['username'];
-    $password = !empty($_POST['password']) ? password_hash($_POST['password'], PASSWORD_DEFAULT) : $row['password'];
-    $department = $_POST['department'];
-    $sh68sa = $_POST['sh68sa'];
-
-    $sql = "UPDATE users SET first_name = ?, last_name = ?, address = ?, country = ?, gender = ?, skills = ?, username = ?, password = ?, department = ?, sh68sa = ? WHERE id = ?";
-    $stmt = $conn->prepare($sql); 
-    $stmt->execute([$first_name, $last_name, $address, $country, $gender, $skills, $username, $password, $department, $sh68sa, $id]);
-    header("Location: list.php");
-    exit();
+    if ($db->update_user($id, $data)) {
+        header("Location: list.php");
+        exit();
+    } else {
+        echo "Error: Could not update user";
+    }
 }
-
 ?>
+
 
 <html>
 
