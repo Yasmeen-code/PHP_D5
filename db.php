@@ -21,13 +21,12 @@ class Db
         }
     }
 
-    public function get_all_data($table)
+    public function get_all_users()
     {
-        $stmt = $this->conn->prepare("SELECT * FROM $table");
+        $stmt = $this->conn->prepare("SELECT id, first_name, last_name, address, photo FROM users");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
 
     public function get_user_by_username($table, $username)
     {
@@ -68,5 +67,27 @@ class Db
         $stmt = $this->conn->prepare($sql);
         $data['id'] = $id;
         return $stmt->execute($data);
+    }
+    public function insert_user($data)
+    {
+        $sql = "INSERT INTO users 
+            (first_name, last_name, address, country, gender, skills, username, password, department, sh68sa, photo) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        $stmt = $this->conn->prepare($sql);
+
+        return $stmt->execute([
+            $data['first_name'],
+            $data['last_name'],
+            $data['address'],
+            $data['country'],
+            $data['gender'],
+            $data['skills'],
+            $data['username'],
+            $data['password'],
+            $data['department'],
+            $data['sh68sa'],
+            $data['photo']
+        ]);
     }
 }

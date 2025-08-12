@@ -1,10 +1,12 @@
 <?php
-function validateInput($data)
-{
-    return htmlspecialchars(trim($data));
-}
+include 'db.php';
+$db = new Db();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    function validateInput($data)
+    {
+        return htmlspecialchars(trim($data));
+    }
 
     $first_name = validateInput($_POST['first_name'] ?? '');
     $last_name = validateInput($_POST['last_name'] ?? '');
@@ -12,10 +14,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $country = validateInput($_POST['country'] ?? '');
     $gender = validateInput($_POST['gender'] ?? '');
     $skills = $_POST['skills'] ?? [];
-    $email = validateInput($_POST['username'] ?? '');
+    $username = validateInput($_POST['username'] ?? '');
     $raw_password = $_POST['password'] ?? '';
     $department = validateInput($_POST['department'] ?? '');
+    $sh68sa = validateInput($_POST['sh68sa'] ?? '');
     $photo = $_FILES['photo'] ?? null;
+
     $photo_name = $photo['name'];
     $photo_tmp = $photo['tmp_name'];
     $photo_destination = 'img/' . basename($photo_name);
@@ -23,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "Error uploading photo.";
         exit();
     }
-    $sh68sa = validateInput($_POST['sh68sa'] ?? '');
 
     if (is_array($skills)) {
         $skills = implode(',', array_map('validateInput', $skills));
@@ -31,14 +34,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (
         empty($first_name) || empty($last_name) || empty($address) || empty($country) ||
-        empty($gender) || empty($skills) || empty($email) || empty($raw_password) ||
-        empty($department) || empty($sh68sa) || empty($_FILES['photo']['name'])
+        empty($gender) || empty($skills) || empty($username) || empty($raw_password) ||
+        empty($department) || empty($sh68sa) || empty($photo_name)
     ) {
         echo "All fields are required.";
         exit();
     }
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if (!filter_var($username, FILTER_VALIDATE_EMAIL)) {
         echo "Invalid email format.";
         exit();
     }
@@ -50,26 +53,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $password_hashed = password_hash($raw_password, PASSWORD_DEFAULT);
 
-    include 'db.php';
-
-
-    $sql = "INSERT INTO users 
-            (first_name, last_name, address, country, gender, skills, username, password, department, sh68sa , photo) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
-
-    $stmt = $conn->prepare($sql);
-    $saved = $stmt->execute([
-        $first_name,
-        $last_name,
-        $address,
-        $country,
-        $gender,
-        $skills,
-        $email,
-        $password_hashed,
-        $department,
-        $sh68sa,
-        $photo_destination
+    $saved = $db->insert_user([
+        'first_name' => $first_name,
+        'last_name' => $last_name,
+        'address' => $address,
+        'country' => $country,
+        'gender' => $gender,
+        'skills' => $skills,
+        'username' => $username,
+        'password' => $password_hashed,
+        'department' => $department,
+        'sh68sa' => $sh68sa,
+        'photo' => $photo_destination
     ]);
 
     if ($saved) {
@@ -80,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+<!DOCTYPE html>
 <html>
 
 <head>

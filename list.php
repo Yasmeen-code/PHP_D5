@@ -11,10 +11,9 @@ if ($_SESSION['role'] !== 'admin') {
     echo "You do not have permission to view this page.";
     exit();
 }
+$db = new Db();
 
-$sql = "SELECT id, first_name, last_name, address, photo from users";
-$stmt = $conn->prepare($sql);
-$stmt->execute();
+$users = $db->get_all_users();
 
 ?>
 <!DOCTYPE html>
@@ -42,8 +41,8 @@ $stmt->execute();
             </thead>
             <tbody>
                 <?php
-                if ($stmt->rowCount() > 0) {
-                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                if (!empty($users)) {
+                    foreach ($users as $row) {
                         echo '<tr>';
                         echo '<td>' . htmlspecialchars($row['first_name']) . '</td>';
                         echo '<td>' . htmlspecialchars($row['last_name']) . '</td>';
@@ -54,6 +53,7 @@ $stmt->execute();
                         } else {
                             echo 'No photo available';
                         }
+                        echo '</td>';
                         echo '<td>';
                         echo '<a href="view_data.php?id=' . $row['id'] . '" class="btn btn-info btn-sm">View</a> ';
                         echo '<a href="edit.php?id=' . $row['id'] . '" class="btn btn-warning btn-sm">Edit</a> ';
