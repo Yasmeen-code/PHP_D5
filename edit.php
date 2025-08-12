@@ -19,8 +19,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'username'   => $_POST['username'],
         'password'   => !empty($_POST['password']) ? password_hash($_POST['password'], PASSWORD_DEFAULT) : $row['password'],
         'department' => $_POST['department'],
+        'photo'       => !empty($_FILES['photo']['name']) ? 'img/' . basename($_FILES['photo']['name']) : $row['photo'],
         'sh68sa'     => $_POST['sh68sa']
     ];
+    if (!empty($_FILES['photo']['name'])) {
+        move_uploaded_file($_FILES['photo']['tmp_name'], $data['photo']);
+    }
 
     if ($db->update_user($id, $data)) {
         header("Location: list.php");
@@ -45,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="container mt-5">
         <h1>Edit User</h1>
 
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             <input type="hidden" name="id" value="<?php echo htmlspecialchars($row['id']); ?>">
 
             <div class="row mb-3">
@@ -103,6 +107,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <select class="form-select" name="department">
                     <option value="cs" <?php if ($row['department'] == "cs") echo "selected"; ?>>Computer Science</option>
                 </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Photo</label>
+                <input type="file" class="form-control" name="photo">
+                <?php if (!empty($row['photo']) && file_exists($row['photo'])) : ?>
+                    <img src="<?php echo htmlspecialchars($row['photo']); ?>" alt="User Photo" style="width: 100px; height: auto;">
+                <?php else : ?>
+                    <p>No photo available</p>
+                <?php endif; ?>
             </div>
 
             <div class="mb-3">

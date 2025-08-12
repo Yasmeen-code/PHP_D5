@@ -62,6 +62,7 @@ class Db
                 username = :username, 
                 password = :password, 
                 department = :department, 
+                photo = :photo,
                 sh68sa = :sh68sa
             WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
