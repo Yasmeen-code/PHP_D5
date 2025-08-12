@@ -2,15 +2,14 @@
 session_start();
 include_once 'db.php';
 
+$db = new Db();
+$table = 'users';
+
 if (isset($_POST['login'])) {
     $username = trim($_POST['email']);
     $password = trim($_POST['password']);
 
-    $sql = "SELECT * FROM users WHERE username = :username";
-    $stmt = $conn->prepare($sql);
-    $stmt->bindParam(':username', $username);
-    $stmt->execute();
-    $result = $stmt->fetch();
+    $result = $db->get_user_by_username($table,$username);
 
     if ($result) {
         if (password_verify($password, $result['password'])) {

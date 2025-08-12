@@ -15,12 +15,9 @@
         <?php
         include_once 'db.php';
         $id = $_GET['id'];
+        $db = new Db();
+        $stmt=$db->get_data_by_id('users', $id);
 
-       $sql = "SELECT * FROM users WHERE id = :id";
-
-        $stmt = $conn->prepare($sql);
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
 
         if ($stmt->rowCount() > 0) {
             echo '<div class="table-responsive">';
